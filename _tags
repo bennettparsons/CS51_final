@@ -1,0 +1,5 @@
+<AsnLib>: include
+<Lib>: include
+<**/*>: thread
+<**/*>: use_unix
+<**/*>: use_str

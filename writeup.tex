@@ -1,0 +1,58 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+
+\title{Extensions to MiniML}
+\author{Bennett Parsons}
+\date{April 27, 2016}
+
+\begin{document}
+
+\maketitle
+
+There are quite a number of enhancements I made to the MiniML language, including an extension to the \texttt{eval\char`_d} functionality, implementation of lexical scoping, the centralization of environment evaluator code, extended semantics and comprehensive, elegant unit tests. They will be discussed in detail here.
+
+While testing, I found that my implementation of the \texttt{eval\char`_d} function, which evaluated expressions using a dynamically scoped environment, failed to evaluated expressions with a double application of functions (ie a function applied to a function applied to a Bool and Num literal). I found this to not be representative of a truly dynamically scoped environment model, so I made the following modifications to fix this. I made my recursive helper function, \texttt{eval}, return the current environment, in addition the Value of the evaluated expression, so that this environment could be used during function application. Thus, the match case for App looks like this:
+
+\begin{lstlisting}
+| App (app_exp, arg_exp) ->
+    match eval app_exp env with
+    | ...  
+    | Val (Fun (v, exp1)), env0 -> 
+\end{lstlisting}
+
+The variable \texttt{env0} represents the environment that is returned from evaluation of the \texttt{app\char`_exp}. This is the environment that should be used during evaluation of the application (otherwise the information from the evaluation is lost).  The previous implementation used the current environment (specified by the initial argument passed into \texttt{eval}), at the time of application, to evaluate then expressions, rather than \texttt{env0}.  Note that the original implementation of \texttt{eval\char`_d} is still available as itself; the extended version has been packaged into a new function, \texttt{eval\char`_d\char`_ext}.
+
+Another extension to the language was the implementation of lexical scoping: \texttt{eval\char`_s}. This followed generally from the use of closures, binding functions to their lexical environment. Thus, during function application, functions were evaluated based on their lexical, closed environment. This provided an elegant solution to the aforementioned issue with the initial dynamically scoped evaluator (while of course changing the inherent evaluation semantics).
+
+Note also that the functionality called by \texttt{eval\char`_d}, \texttt{eval\char`_d\char`_ext} and \texttt{eval\char`_l}, is all packaged into a single function \texttt{eval\char`_all} that takes in the same expression and environment as each evaluator as well as two Boolean flags that let.  The first flag differentiates between dynamic and lexical scoping (true giving dynamic and false giving lexical), while the second indicates the extension to \texttt{eval\char`_d} (true gives the extension and false preserves the original).  This allows for the \texttt{eval\char`_d}, \texttt{eval\char`_d\char`_ext} and \texttt{eval\char`_l} function definitions to be quite simple and elegant:
+
+\begin{lstlisting}
+let eval_d exp env =  (eval_all exp env true false) ;;
+let eval_d_ext exp env = (eval_all exp env true true) ;;
+let eval_l exp env = (eval_all exp env false true) ;;
+\end{lstlisting}
+
+\bigskip
+Another enhancement I made to MiniML was the extension of the language semantics to include more operators for its Bool and Num literals. The \texttt{"not"} keyword was added to the language as Boolean Unary negation.  The Boolean binary operators \texttt{">"} and \texttt{"<>"} were also added, as well as the Num binary operator \texttt{"/"}.  These additions consisted of adding these tokens to the declarations provided in \texttt{miniml\char`_parse.mly}, as well as the tables and character recognition lists in \texttt{miniml\char`_lex.mll}.  The Binop and Unop match cases in the evaluators (and the corresponding helper functions) were in turn modified to correctly evaluate expressions containing these operators.
+
+The final, and perhaps most time consuming extension, contributes more to the overall style of the project rather than the functionality of MiniML.  Using Professor Shieber's skeleton code for tests, I created a testing environment in \texttt{stests\char`.ml} that made use of extension automated testing and further abstraction of the literals, expressions, values and environments used by the functions implemented in \texttt{expr\char`.ml} and \texttt{evaluation\char`.ml}.  For instance, testing for the evaluators consisted of two functions: \texttt{test\char`_all} and \texttt{test\char`_one}. \texttt{test\char`_all}, reproduced below, took in the string one would type into MiniMl and the expected string to be returned, and constructed four tests, one for each of the evaluations, ensuring that these tests cases were supported by each implementation.
+
+\begin{lstlisting}
+let test_all str_in str_out =
+      dec ();
+      let str evaler =
+        try
+          exp_to_string (exp_of_val (evaler (str_to_exp str_in) empty))
+        with
+        | EvalError s -> s in
+
+      [``Eval_s'' ^ !ctr, lazy (str eval_s = str_out), str eval_s ;
+      ``Eval_d'' ^ !ctr, lazy (str eval_d = str_out), str eval_d ;
+      ``Eval_d_ext'' ^ !ctr, lazy (str eval_d_ext = str_out), str eval_d_ext ;
+      ``Eval_l'' ^ !ctr, lazy (str eval_l = str_out), str eval_l]
+\end{lstlisting}
+
+The \texttt{str} function evaluates the input string against the evaluator, and eventually returns the string representation of the output, hopefully the same as \texttt{str\char`_out}! After a master list of these tests is created, and stored in \texttt{tests}, all tests can be run with a single call to: \texttt{report \char`(make\char`_test tests\char`)}.
+
+\end{document}

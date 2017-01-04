@@ -1,0 +1,23 @@
+	Had to make a critical change to eval_d in order to support double function application as in the case 
+
+	let twice = fun f -> fun x -> f (f x) in let square = fun x -> x*x in twice square 3;; 
+
+	the change was having a helper eval return the environment it just used, so that application was always using the latest environment in its evaluation
+
+
+
+	did nice testing
+
+
+
+
+	combined eval_d and eval_l
+
+
+
+
+	added stuff
+	greaterthan
+	exor
+	integer division
+	not keyword
