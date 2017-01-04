@@ -4,8 +4,8 @@ This repository constitutes my final project for CS51, Harvard's second introduc
 
 What I implemented:
 * evaluation.ml - functions within Env module, all stests.ml function variants
-* expr.ml - all functions: \texttt{free_vars}, \texttt{new_varname}, \texttt{subst}, \texttt{exp_to_string}, as well as tests
-* miniml_lex.mll - added \texttt{not} keyword, \texttt{~} negation, \texttt{<>} exor, \texttt{<} and \texttt{>} comparators, and \texttt{/} division
+* expr.ml - all functions: ```free_vars```, ```new_varname```, ```subst```, ```exp_to_string```, as well as tests
+* miniml_lex.mll - added ```not``` keyword, ```~``` negation, ```<>``` exor, ```<``` and ```>``` comparators, and ```/``` division
 * miniml_parse.mly - same functionality added as miniml_lex.mll
 * stests.ml - all
 
@@ -14,5 +14,5 @@ latest version of OCaml: http://ocaml.org/docs/install.html
 
 Run Instructions:
 compile with ```make```
-launch MiniMl with \texttt{./miniml.byte}
-run unit tests with \texttt{./stests.byte}
+launch MiniMl with ```./miniml.byte```
+run unit tests with ```./stests.byte```
