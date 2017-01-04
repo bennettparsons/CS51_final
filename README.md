@@ -13,6 +13,6 @@ Installation:
 latest version of OCaml: http://ocaml.org/docs/install.html
 
 Run Instructions:
-compile with \texttt{make}
+compile with ```make```
 launch MiniMl with \texttt{./miniml.byte}
 run unit tests with \texttt{./stests.byte}
